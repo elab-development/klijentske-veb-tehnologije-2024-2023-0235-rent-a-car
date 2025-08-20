@@ -1,11 +1,21 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import Home from './pages/Home';
+import Cars from './pages/Cars';
+import CarDetails from './pages/CarDetails';
+import Contact from './pages/Contact';
+
 function App() {
   return (
     <>
-      <div className='h-screen w-screen bg-blue-500'>
-        <h1 className='text-white text-4xl font-bold text-center pt-20'>
-          Rent a Car App
-        </h1>
-      </div>
+      <Router>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/cars' element={<Cars />} />
+          <Route path='/cars/:id' element={<CarDetails />} />
+          <Route path='/contact' element={<Contact />} />
+        </Routes>
+      </Router>
     </>
   );
 }
