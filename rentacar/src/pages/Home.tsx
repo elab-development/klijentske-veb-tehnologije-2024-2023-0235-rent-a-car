@@ -1,5 +1,13 @@
+import BrandStrip from '../components/home/BrandStrip';
+import Hero from '../components/home/Hero';
+
 const Home = () => {
-  return <div>Home</div>;
+  return (
+    <>
+      <Hero />
+      <BrandStrip />
+    </>
+  );
 };
 
 export default Home;
