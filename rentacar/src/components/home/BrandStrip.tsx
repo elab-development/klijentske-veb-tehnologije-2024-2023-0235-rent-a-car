@@ -1,20 +1,5 @@
-const BRANDS = [
-  'Toyota',
-  'Volkswagen',
-  'Hyundai',
-  'Škoda',
-  'Tesla',
-  'BMW',
-  'Audi',
-  'Ford',
-  'Mercedes-Benz',
-  'Kia',
-  'Peugeot',
-  'Renault',
-  'Opel',
-  'Mazda',
-  'Honda',
-];
+import { brands } from '../../domain/data';
+import BrandCard from './BrandCard';
 
 export default function BrandStrip() {
   return (
@@ -28,15 +13,8 @@ export default function BrandStrip() {
         </p>
 
         <div className='mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6'>
-          {BRANDS.map((b) => (
-            <div
-              key={b}
-              className='flex items-center justify-center rounded-lg border bg-white p-4 hover:shadow-sm transition'
-              title={b}
-            >
-              {/* Use real SVGs later; for now, text badges */}
-              <span className='text-gray-700 font-semibold'>{b}</span>
-            </div>
+          {brands.map((brand) => (
+            <BrandCard brand={brand} key={brand.id} />
           ))}
         </div>
       </div>

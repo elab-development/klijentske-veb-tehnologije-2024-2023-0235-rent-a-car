@@ -1,4 +1,4 @@
-import type { Car, Location } from './rentals';
+import type { Brand, Car, Location } from './rentals';
 import { d } from './helpers';
 
 export const locations: Location[] = [
@@ -36,7 +36,7 @@ export const cars: Car[] = [
         end: d('2025-08-14T12:00:00Z'),
       },
     ],
-    imageUrl: '/images/cars/corolla-2022.jpg',
+    imageUrl: 'images/cars/corolla-2022.jpg',
   },
   {
     id: 'car-002',
@@ -58,7 +58,7 @@ export const cars: Car[] = [
         end: d('2025-08-11T18:00:00Z'),
       },
     ],
-    imageUrl: '/images/cars/golf-2021.jpg',
+    imageUrl: 'images/cars/golf-2021.jpg',
   },
   {
     id: 'car-003',
@@ -72,7 +72,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-air', 'loc-ns-centar'],
     returnLocationIds: ['loc-bel-air', 'loc-ns-centar'],
     bookings: [],
-    imageUrl: '/images/cars/i30-2023.jpg',
+    imageUrl: 'images/cars/i30-2023.jpg',
   },
   {
     id: 'car-004',
@@ -94,7 +94,7 @@ export const cars: Car[] = [
         end: d('2025-08-13T20:00:00Z'),
       },
     ],
-    imageUrl: '/images/cars/octavia-2020.jpg',
+    imageUrl: 'images/cars/octavia-2020.jpg',
   },
   {
     id: 'car-005',
@@ -116,7 +116,7 @@ export const cars: Car[] = [
         end: d('2025-08-15T14:00:00Z'),
       },
     ],
-    imageUrl: '/images/cars/model3-2024.webp',
+    imageUrl: 'images/cars/model3-2024.webp',
   },
   {
     id: 'car-006',
@@ -130,7 +130,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-air', 'loc-ns-centar'],
     returnLocationIds: ['loc-bel-air', 'loc-ns-centar'],
     bookings: [],
-    imageUrl: '/images/cars/bmw-3series-2022.jpg',
+    imageUrl: 'images/cars/bmw-3series-2022.jpg',
   },
   {
     id: 'car-007',
@@ -144,7 +144,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-centar', 'loc-nis-centar'],
     returnLocationIds: ['loc-bel-centar', 'loc-nis-centar'],
     bookings: [],
-    imageUrl: '/images/cars/audi-a4-2021.avif',
+    imageUrl: 'images/cars/audi-a4-2021.avif',
   },
   {
     id: 'car-008',
@@ -166,7 +166,7 @@ export const cars: Car[] = [
         end: d('2025-08-16T14:00:00Z'),
       },
     ],
-    imageUrl: '/images/cars/ford-focus-2020.webp',
+    imageUrl: 'images/cars/ford-focus-2020.webp',
   },
   {
     id: 'car-009',
@@ -180,7 +180,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-air'],
     returnLocationIds: ['loc-bel-air', 'loc-bel-centar'],
     bookings: [],
-    imageUrl: '/images/cars/mercedes-cclass-2023.jpg',
+    imageUrl: 'images/cars/mercedes-cclass-2023.jpg',
   },
   {
     id: 'car-010',
@@ -194,7 +194,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-ns-centar', 'loc-nis-centar'],
     returnLocationIds: ['loc-ns-centar', 'loc-nis-centar'],
     bookings: [],
-    imageUrl: '/images/cars/kia-ceed-2022.jpg',
+    imageUrl: 'images/cars/kia-ceed-2022.jpg',
   },
   {
     id: 'car-011',
@@ -208,7 +208,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-air', 'loc-bel-centar', 'loc-ns-centar'],
     returnLocationIds: ['loc-bel-air', 'loc-bel-centar'],
     bookings: [],
-    imageUrl: '/images/cars/peugeot-308-2021.jpg',
+    imageUrl: 'images/cars/peugeot-308-2021.jpg',
   },
   {
     id: 'car-012',
@@ -222,7 +222,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-air', 'loc-nis-centar'],
     returnLocationIds: ['loc-bel-air', 'loc-nis-centar'],
     bookings: [],
-    imageUrl: '/images/cars/renault-megane-2020.jpg',
+    imageUrl: 'images/cars/renault-megane-2020.jpg',
   },
   {
     id: 'car-013',
@@ -244,7 +244,7 @@ export const cars: Car[] = [
         end: d('2025-08-14T18:00:00Z'),
       },
     ],
-    imageUrl: '/images/cars/opel-astra-2023.jpg',
+    imageUrl: 'images/cars/opel-astra-2023.jpg',
   },
   {
     id: 'car-014',
@@ -258,7 +258,7 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-bel-air', 'loc-bel-centar'],
     returnLocationIds: ['loc-bel-air', 'loc-bel-centar', 'loc-nis-centar'],
     bookings: [],
-    imageUrl: '/images/cars/mazda-3-2024.avif',
+    imageUrl: 'images/cars/mazda-3-2024.avif',
   },
   {
     id: 'car-015',
@@ -272,6 +272,32 @@ export const cars: Car[] = [
     pickupLocationIds: ['loc-ns-centar', 'loc-bel-centar'],
     returnLocationIds: ['loc-ns-centar', 'loc-bel-centar', 'loc-bel-air'],
     bookings: [],
-    imageUrl: '/images/cars/honda-civic-2022.jpg',
+    imageUrl: 'images/cars/honda-civic-2022.jpg',
   },
+];
+
+export const brands: Brand[] = [
+  { id: 'toyota', name: 'Toyota', logoUrl: 'images/brands/toyota.png' },
+  {
+    id: 'volkswagen',
+    name: 'Volkswagen',
+    logoUrl: 'images/brands/volkswagen.png',
+  },
+  { id: 'hyundai', name: 'Hyundai', logoUrl: 'images/brands/hyundai.png' },
+  { id: 'skoda', name: 'Skoda', logoUrl: 'images/brands/skoda.png' },
+  { id: 'tesla', name: 'Tesla', logoUrl: 'images/brands/tesla.png' },
+  { id: 'bmw', name: 'BMW', logoUrl: 'images/brands/bmw.png' },
+  { id: 'audi', name: 'Audi', logoUrl: 'images/brands/audi.png' },
+  { id: 'ford', name: 'Ford', logoUrl: 'images/brands/ford.png' },
+  {
+    id: 'mercedes',
+    name: 'Mercedes-Benz',
+    logoUrl: 'images/brands/mercedes.png',
+  },
+  { id: 'kia', name: 'Kia', logoUrl: 'images/brands/kia.png' },
+  { id: 'peugeot', name: 'Peugeot', logoUrl: 'images/brands/peugeot.png' },
+  { id: 'renault', name: 'Renault', logoUrl: 'images/brands/renault.png' },
+  { id: 'opel', name: 'Opel', logoUrl: 'images/brands/opel.png' },
+  { id: 'mazda', name: 'Mazda', logoUrl: 'images/brands/mazda.png' },
+  { id: 'honda', name: 'Honda', logoUrl: 'images/brands/honda.png' },
 ];

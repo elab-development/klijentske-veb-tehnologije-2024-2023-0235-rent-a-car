@@ -33,7 +33,7 @@ export interface Car {
 }
 
 export interface SearchCriteria {
-  model?: string;
+  make?: string;
   pickupLocationId?: Id;
   returnLocationId?: Id;
   start?: Date;
@@ -84,13 +84,13 @@ export class InMemoryCarRepository implements ICarRepository {
   }
 
   search(criteria: SearchCriteria): Car[] {
-    const { model, pickupLocationId, returnLocationId, start, end } = criteria;
+    const { make, pickupLocationId, returnLocationId, start, end } = criteria;
     const avail = new AvailabilityService();
 
     return this.cars.filter((c) => {
-      if (model) {
-        const m = model.trim().toLowerCase();
-        if (!c.model.toLowerCase().includes(m)) return false;
+      if (make) {
+        const m = make.trim().toLowerCase();
+        if (!c.make.toLowerCase().includes(m)) return false;
       }
       if (pickupLocationId && !c.pickupLocationIds.includes(pickupLocationId))
         return false;
@@ -100,4 +100,10 @@ export class InMemoryCarRepository implements ICarRepository {
       return true;
     });
   }
+}
+
+export interface Brand {
+  id: Id;
+  name: string;
+  logoUrl?: string;
 }
