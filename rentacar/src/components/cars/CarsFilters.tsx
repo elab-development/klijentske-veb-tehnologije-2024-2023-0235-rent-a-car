@@ -1,16 +1,34 @@
 import { type FormEvent, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { locations } from '../../domain/data';
 
-const val = (s: string | null) => s ?? '';
+import { locations } from '../../domain/data';
+const STORAGE_KEY = 'cars:filters';
+
+type Stored = {
+  pickup?: string;
+  return?: string;
+  start?: string;
+  end?: string;
+};
+
+function readStored(): Stored {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
 
 export default function CarsFilters() {
   const [sp, setSp] = useSearchParams();
+  const stored = readStored();
 
-  const [pickup, setPickup] = useState(val(sp.get('pickup')));
-  const [ret, setRet] = useState(val(sp.get('return')));
-  const [start, setStart] = useState(val(sp.get('start'))); // "YYYY-MM-DDTHH:mm"
-  const [end, setEnd] = useState(val(sp.get('end')));
+  const [pickup, setPickup] = useState(sp.get('pickup') ?? stored.pickup ?? '');
+  const [ret, setRet] = useState(sp.get('return') ?? stored.return ?? '');
+  const [start, setStart] = useState(sp.get('start') ?? stored.start ?? '');
+  const [end, setEnd] = useState(sp.get('end') ?? stored.end ?? '');
 
   const canApply = useMemo(() => {
     if ((start && !end) || (!start && end)) return false;
@@ -18,20 +36,27 @@ export default function CarsFilters() {
     return true;
   }, [start, end]);
 
-  const setOrDelete = (params: URLSearchParams, key: string, value: string) => {
-    if (value && value.trim()) params.set(key, value.trim());
-    else params.delete(key);
+  const setOrDel = (qs: URLSearchParams, key: string, val: string) => {
+    if (val && val.trim()) qs.set(key, val.trim());
+    else qs.delete(key);
   };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const next = new URLSearchParams(sp);
-    setOrDelete(next, 'pickup', pickup);
-    setOrDelete(next, 'return', ret);
-    setOrDelete(next, 'start', start);
-    setOrDelete(next, 'end', end);
+    setOrDel(next, 'pickup', pickup);
+    setOrDel(next, 'return', ret);
+    setOrDel(next, 'start', start);
+    setOrDel(next, 'end', end);
     next.set('page', '1');
     setSp(next);
+
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ pickup, return: ret, start, end })
+      );
+    } catch {}
   };
 
   const onClear = () => {
@@ -39,6 +64,11 @@ export default function CarsFilters() {
     ['pickup', 'return', 'start', 'end'].forEach((k) => next.delete(k));
     next.set('page', '1');
     setSp(next);
+
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+
     setPickup('');
     setRet('');
     setStart('');
@@ -55,7 +85,7 @@ export default function CarsFilters() {
         <select
           value={pickup}
           onChange={(e) => setPickup(e.target.value)}
-          className='rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+          className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
         >
           <option value=''>Anywhere</option>
           {locations.map((l) => (
@@ -71,7 +101,7 @@ export default function CarsFilters() {
         <select
           value={ret}
           onChange={(e) => setRet(e.target.value)}
-          className='rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+          className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
         >
           <option value=''>Anywhere</option>
           {locations.map((l) => (
@@ -88,7 +118,7 @@ export default function CarsFilters() {
           type='datetime-local'
           value={start}
           onChange={(e) => setStart(e.target.value)}
-          className='rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+          className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
         />
       </label>
 
@@ -98,7 +128,7 @@ export default function CarsFilters() {
           type='datetime-local'
           value={end}
           onChange={(e) => setEnd(e.target.value)}
-          className='rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+          className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
         />
       </label>
 
