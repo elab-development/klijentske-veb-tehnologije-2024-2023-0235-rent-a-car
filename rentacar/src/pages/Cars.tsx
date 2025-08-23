@@ -3,18 +3,31 @@ import { useSearchParams } from 'react-router-dom';
 
 import { InMemoryCarRepository } from '../domain/rentals';
 import { cars } from '../domain/data';
+import { toDate } from '../domain/helpers';
 import CarCard from '../components/cars/CarCard';
+import CarsFilters from '../components/cars/CarsFilters';
 
 const PAGE_SIZE = 6;
 
 const Cars = () => {
   const [sp, setSp] = useSearchParams();
   const makeParam = sp.get('make') ?? undefined;
+  const pickupParam = sp.get('pickup') ?? undefined;
+  const returnParam = sp.get('return') ?? undefined;
+  const startParam = toDate(sp.get('start'));
+  const endParam = toDate(sp.get('end'));
 
   const repo = useMemo(() => new InMemoryCarRepository(cars), []);
   const filtered = useMemo(
-    () => repo.search({ make: makeParam }),
-    [repo, makeParam]
+    () =>
+      repo.search({
+        make: makeParam,
+        pickupLocationId: pickupParam,
+        returnLocationId: returnParam,
+        start: startParam,
+        end: endParam,
+      }),
+    [repo, makeParam, pickupParam, returnParam, startParam, endParam]
   );
 
   const rawPage = parseInt(sp.get('page') || '1', 10);
@@ -49,7 +62,7 @@ const Cars = () => {
   };
 
   return (
-    <main className='mx-auto max-w-7xl px-4 py-8'>
+    <main className='mx-auto max-w-7xl px-4 py-8 bg-slate-50'>
       <div className='mb-6 flex items-end justify-between'>
         <h1 className='text-2xl font-bold'>
           {makeParam ? `Cars by ${makeParam}` : 'All Cars'}
@@ -58,6 +71,8 @@ const Cars = () => {
           {filtered.length} result{filtered.length !== 1 ? 's' : ''}
         </p>
       </div>
+
+      <CarsFilters />
 
       {filtered.length === 0 ? (
         <div className='rounded-xl border bg-white p-8 text-center text-gray-600'>
