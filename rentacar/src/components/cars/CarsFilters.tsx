@@ -2,24 +2,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { locations } from '../../domain/data';
-const STORAGE_KEY = 'cars:filters';
-
-type Stored = {
-  pickup?: string;
-  return?: string;
-  start?: string;
-  end?: string;
-};
-
-function readStored(): Stored {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
+import { readStored, STORAGE_KEY } from '../../domain/localStorage';
 
 export default function CarsFilters() {
   const [sp, setSp] = useSearchParams();

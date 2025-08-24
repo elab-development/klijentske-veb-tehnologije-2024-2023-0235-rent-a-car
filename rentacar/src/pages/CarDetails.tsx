@@ -3,25 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { AvailabilityService, InMemoryCarRepository } from '../domain/rentals';
 import { cars, locations } from '../domain/data';
-
-const STORAGE_KEY = 'cars:filters';
-
-type Stored = {
-  pickup?: string;
-  return?: string;
-  start?: string;
-  end?: string;
-};
-
-function readStored(): Stored {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
+import { readStored } from '../domain/localStorage';
 
 export default function CarDetails() {
   const { id } = useParams<{ id: string }>();
