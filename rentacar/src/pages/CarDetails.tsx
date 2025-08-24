@@ -1,15 +1,37 @@
-import { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { InMemoryCarRepository } from '../domain/rentals';
+import { useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+
+import { AvailabilityService, InMemoryCarRepository } from '../domain/rentals';
 import { cars, locations } from '../domain/data';
+
+const STORAGE_KEY = 'cars:filters';
+
+type Stored = {
+  pickup?: string;
+  return?: string;
+  start?: string;
+  end?: string;
+};
+
+function readStored(): Stored {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
 
 export default function CarDetails() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const repo = useMemo(() => new InMemoryCarRepository(cars), []);
   const car = useMemo(() => (id ? repo.findById(id) : undefined), [repo, id]);
 
   const locById = useMemo(() => new Map(locations.map((l) => [l.id, l])), []);
+  const availability = useMemo(() => new AvailabilityService(), []);
 
   if (!car) {
     return (
@@ -31,20 +53,64 @@ export default function CarDetails() {
     );
   }
 
-  const imgSrc = `${import.meta.env.BASE_URL}${(car.imageUrl ?? '').replace(
-    /^\//,
-    ''
-  )}`;
+  const allowedPickup = car.pickupLocationIds;
+  const allowedReturn = car.returnLocationIds;
+
+  const stored = readStored();
+  const initialPickup =
+    stored.pickup && allowedPickup.includes(stored.pickup)
+      ? stored.pickup
+      : allowedPickup[0] ?? '';
+  const initialReturn =
+    stored.return && allowedReturn.includes(stored.return)
+      ? stored.return
+      : allowedReturn[0] ?? '';
+
+  const [pickup, setPickup] = useState<string>(initialPickup);
+  const [ret, setRet] = useState<string>(initialReturn);
+  const [start, setStart] = useState<string>(stored.start ?? '');
+  const [end, setEnd] = useState<string>(stored.end ?? '');
+
+  const startDate = start ? new Date(start) : undefined;
+  const endDate = end ? new Date(end) : undefined;
+
+  const validRange = !!(startDate && endDate && startDate < endDate);
+  const canCheck = validRange;
+
+  const isAvailable = canCheck
+    ? availability.isAvailable(car, startDate!, endDate!)
+    : false;
+
   const pickupNames = car.pickupLocationIds
     .map((lid) => locById.get(lid))
     .filter(Boolean)
     .map((l) => `${l!.city} • ${l!.name}`)
     .join(', ');
+
   const returnNames = car.returnLocationIds
     .map((lid) => locById.get(lid))
     .filter(Boolean)
     .map((l) => `${l!.city} • ${l!.name}`)
     .join(', ');
+
+  const imgSrc = `${import.meta.env.BASE_URL}${(car.imageUrl ?? '').replace(
+    /^\//,
+    ''
+  )}`;
+
+  const onBook = () => {
+    if (!canCheck || !isAvailable || !pickup || !ret) return;
+
+    car.bookings.push({
+      carId: car.id,
+      pickupLocationId: pickup,
+      returnLocationId: ret,
+      start: startDate!,
+      end: endDate!,
+    });
+
+    navigate('/');
+  };
 
   return (
     <main className='mx-auto max-w-7xl px-4 py-8'>
@@ -58,8 +124,8 @@ export default function CarDetails() {
       </div>
 
       <div className='grid gap-8 lg:grid-cols-2'>
-        <div className='overflow-hidden rounded-2xl shadow-sm bg-white shadow-sm'>
-          <div className='w-full h-full bg-gray-100'>
+        <div className='rounded-2xl bg-white shadow-sm overflow-hidden'>
+          <div className='w-full h-full overflow-hidden'>
             <img
               src={imgSrc}
               alt={`${car.make} ${car.model}`}
@@ -68,7 +134,7 @@ export default function CarDetails() {
           </div>
         </div>
 
-        <div className='rounded-2xl shadow-sm bg-white p-6 shadow-sm'>
+        <div className='rounded-2xl bg-white p-6 shadow-sm'>
           <h1 className='text-2xl font-bold'>
             {car.make} {car.model}
           </h1>
@@ -114,14 +180,93 @@ export default function CarDetails() {
             </div>
           </div>
 
-          <div className='mt-8'>
+          <form className='mt-8 grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2'>
+            <label className='flex flex-col gap-1'>
+              <span className='text-xs font-medium text-gray-700'>Pickup</span>
+              <select
+                value={pickup}
+                onChange={(e) => setPickup(e.target.value)}
+                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+              >
+                {allowedPickup.map((id) => {
+                  const l = locById.get(id)!;
+                  return (
+                    <option key={id} value={id}>
+                      {l.city} • {l.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+
+            <label className='flex flex-col gap-1'>
+              <span className='text-xs font-medium text-gray-700'>Return</span>
+              <select
+                value={ret}
+                onChange={(e) => setRet(e.target.value)}
+                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+              >
+                {allowedReturn.map((id) => {
+                  const l = locById.get(id)!;
+                  return (
+                    <option key={id} value={id}>
+                      {l.city} • {l.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+
+            <label className='flex flex-col gap-1'>
+              <span className='text-xs font-medium text-gray-700'>Start</span>
+              <input
+                type='datetime-local'
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+              />
+            </label>
+
+            <label className='flex flex-col gap-1'>
+              <span className='text-xs font-medium text-gray-700'>End</span>
+              <input
+                type='datetime-local'
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+              />
+            </label>
+          </form>
+
+          <div className='mt-4 flex items-center justify-between'>
+            <div className='text-sm'>
+              {!canCheck && (
+                <span className='text-gray-500'>
+                  Select valid dates to check availability
+                </span>
+              )}
+              {canCheck && isAvailable && (
+                <span className='text-emerald-700 font-medium'>Available</span>
+              )}
+              {canCheck && !isAvailable && (
+                <span className='text-red-600 font-medium'>
+                  Unavailable for these dates
+                </span>
+              )}
+            </div>
+
             <button
               type='button'
-              className='w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700'
-              disabled
-              title='Coming soon'
+              onClick={onBook}
+              disabled={!canCheck || !isAvailable || !pickup || !ret}
+              className={[
+                'rounded-lg px-4 py-2 text-sm font-semibold',
+                !canCheck || !isAvailable
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700',
+              ].join(' ')}
             >
-              Book this car
+              {!canCheck || !isAvailable ? 'Unavailable' : 'Book this car'}
             </button>
           </div>
         </div>
