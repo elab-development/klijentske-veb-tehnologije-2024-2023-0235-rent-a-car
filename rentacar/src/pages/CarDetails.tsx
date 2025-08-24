@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AvailabilityService, InMemoryCarRepository } from '../domain/rentals';
 import { cars, locations } from '../domain/data';
 import { readStored } from '../domain/localStorage';
+import { calculateRentalPrice } from '../domain/pricing';
 
 export default function CarDetails() {
   const { id } = useParams<{ id: string }>();
@@ -94,6 +95,11 @@ export default function CarDetails() {
     navigate('/');
   };
 
+  const price = useMemo(() => {
+    if (!canCheck) return null;
+    return calculateRentalPrice(startDate!, endDate!, car.pricePerHour);
+  }, [start, end, car.pricePerHour, canCheck]);
+
   return (
     <main className='mx-auto max-w-7xl px-4 py-8'>
       <div className='mb-6'>
@@ -162,13 +168,13 @@ export default function CarDetails() {
             </div>
           </div>
 
-          <form className='mt-8 grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2'>
+          <form className='mt-8 grid gap-3 rounded-xl shadow-sm bg-white p-4 sm:grid-cols-2'>
             <label className='flex flex-col gap-1'>
               <span className='text-xs font-medium text-gray-700'>Pickup</span>
               <select
                 value={pickup}
                 onChange={(e) => setPickup(e.target.value)}
-                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+                className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
               >
                 {allowedPickup.map((id) => {
                   const l = locById.get(id)!;
@@ -186,7 +192,7 @@ export default function CarDetails() {
               <select
                 value={ret}
                 onChange={(e) => setRet(e.target.value)}
-                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+                className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
               >
                 {allowedReturn.map((id) => {
                   const l = locById.get(id)!;
@@ -205,7 +211,7 @@ export default function CarDetails() {
                 type='datetime-local'
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
-                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+                className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
               />
             </label>
 
@@ -215,7 +221,7 @@ export default function CarDetails() {
                 type='datetime-local'
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
-                className='rounded-lg border px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
+                className='cursor-pointer rounded-lg shadow-sm px-3 py-2 text-sm outline-none ring-blue-500/20 focus:ring'
               />
             </label>
           </form>
@@ -242,7 +248,7 @@ export default function CarDetails() {
               onClick={onBook}
               disabled={!canCheck || !isAvailable || !pickup || !ret}
               className={[
-                'rounded-lg px-4 py-2 text-sm font-semibold',
+                'cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold',
                 !canCheck || !isAvailable
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-700',
@@ -250,6 +256,32 @@ export default function CarDetails() {
             >
               {!canCheck || !isAvailable ? 'Unavailable' : 'Book this car'}
             </button>
+          </div>
+          <div className='mt-2 text-sm w-full'>
+            {price && price.hours > 0 && (
+              <div className='rounded-md bg-gray-50 p-3'>
+                <div className='flex items-center justify-between'>
+                  <span>
+                    {price.days > 0 ? `${price.days}d ` : ''}
+                    {price.remainingHours}h × ${car.pricePerHour}/h
+                  </span>
+                  <span className='font-medium'>${price.base.toFixed(2)}</span>
+                </div>
+                {price.discountRate > 0 && (
+                  <div className='mt-1 flex items-center justify-between text-gray-600'>
+                    <span>
+                      Long-rent Discount ({Math.round(price.discountRate * 100)}
+                      %)
+                    </span>
+                    <span>- ${price.discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className='mt-2 flex items-center justify-between font-semibold'>
+                  <span>Total</span>
+                  <span>${price.total.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
