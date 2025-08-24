@@ -66,3 +66,41 @@ export function calculateRentalPrice(
     remainingHours: hours % 24,
   };
 }
+
+// Currency
+
+export type CurrencyMap = Record<string, string>;
+
+export async function fetchCurrencies(): Promise<CurrencyMap> {
+  const res = await fetch('https://api.frankfurter.dev/v1/currencies');
+  if (!res.ok) throw new Error(`Currencies HTTP ${res.status}`);
+  return res.json();
+}
+
+export async function fetchRate(base: string, target: string): Promise<number> {
+  if (base === target) return 1;
+  const url = `https://api.frankfurter.dev/v1/latest?base=${encodeURIComponent(
+    base
+  )}&symbols=${encodeURIComponent(target)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Rates HTTP ${res.status}`);
+  const data = (await res.json()) as { rates: Record<string, number> };
+  const rate = data.rates[target];
+  if (typeof rate !== 'number') throw new Error(`No rate for ${target}`);
+  return rate;
+}
+
+export function convertWithRate(amount: number, rate: number): number {
+  return Math.round((amount * rate + Number.EPSILON) * 100) / 100;
+}
+
+export function formatCurrency(amount: number, code: string): string {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: code,
+    }).format(amount);
+  } catch {
+    return `${code} ${amount.toFixed(2)}`;
+  }
+}

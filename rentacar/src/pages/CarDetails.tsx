@@ -4,7 +4,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AvailabilityService, InMemoryCarRepository } from '../domain/rentals';
 import { cars, locations } from '../domain/data';
 import { readStored } from '../domain/localStorage';
-import { calculateRentalPrice } from '../domain/pricing';
+import {
+  calculateRentalPrice,
+  fetchCurrencies,
+  fetchRate,
+  convertWithRate,
+  formatCurrency,
+} from '../domain/pricing';
 
 export default function CarDetails() {
   const { id } = useParams<{ id: string }>();
@@ -95,10 +101,40 @@ export default function CarDetails() {
     navigate('/');
   };
 
+  const [currencies, setCurrencies] = useState<Record<string, string>>({});
+  const [currency, setCurrency] = useState('USD');
+  const [rate, setRate] = useState(1);
+
+  useMemo(() => {
+    fetchCurrencies()
+      .then(setCurrencies)
+      .catch(() => setCurrencies({ USD: 'US Dollar' }));
+  }, []);
+
+  useMemo(() => {
+    let ignore = false;
+    (async () => {
+      try {
+        const r = await fetchRate('USD', currency);
+        if (!ignore) setRate(r);
+      } catch {
+        if (!ignore) setRate(1);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [currency]);
+
   const price = useMemo(() => {
     if (!canCheck) return null;
     return calculateRentalPrice(startDate!, endDate!, car.pricePerHour);
   }, [start, end, car.pricePerHour, canCheck]);
+
+  const unitConverted = convertWithRate(car.pricePerHour, rate);
+  const baseConverted = price ? convertWithRate(price.base, rate) : 0;
+  const discountConverted = price ? convertWithRate(price.discount, rate) : 0;
+  const totalConverted = price ? convertWithRate(price.total, rate) : 0;
 
   return (
     <main className='mx-auto max-w-7xl px-4 py-8'>
@@ -257,15 +293,36 @@ export default function CarDetails() {
               {!canCheck || !isAvailable ? 'Unavailable' : 'Book this car'}
             </button>
           </div>
+
+          <div className='mt-6 flex items-center justify-end'>
+            <label className='text-sm text-gray-600 mr-2'>Currency</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className='rounded-md shadow-sm px-2 py-1 text-sm outline-none focus:ring ring-blue-500/20'
+            >
+              {Object.keys(currencies)
+                .sort()
+                .map((code) => (
+                  <option key={code} value={code}>
+                    {code} — {currencies[code]}
+                  </option>
+                ))}
+            </select>
+          </div>
+
           <div className='mt-2 text-sm w-full'>
             {price && price.hours > 0 && (
-              <div className='rounded-md bg-gray-50 p-3'>
+              <div className='rounded-md bg-gray-50 p-3 text-sm'>
                 <div className='flex items-center justify-between'>
                   <span>
                     {price.days > 0 ? `${price.days}d ` : ''}
-                    {price.remainingHours}h × ${car.pricePerHour}/h
+                    {price.remainingHours}h ×{' '}
+                    {formatCurrency(unitConverted, currency)}
                   </span>
-                  <span className='font-medium'>${price.base.toFixed(2)}</span>
+                  <span className='font-medium'>
+                    {formatCurrency(baseConverted, currency)}
+                  </span>
                 </div>
                 {price.discountRate > 0 && (
                   <div className='mt-1 flex items-center justify-between text-gray-600'>
@@ -273,12 +330,12 @@ export default function CarDetails() {
                       Long-rent Discount ({Math.round(price.discountRate * 100)}
                       %)
                     </span>
-                    <span>- ${price.discount.toFixed(2)}</span>
+                    <span>- {formatCurrency(discountConverted, currency)}</span>
                   </div>
                 )}
                 <div className='mt-2 flex items-center justify-between font-semibold'>
                   <span>Total</span>
-                  <span>${price.total.toFixed(2)}</span>
+                  <span>{formatCurrency(totalConverted, currency)}</span>
                 </div>
               </div>
             )}
