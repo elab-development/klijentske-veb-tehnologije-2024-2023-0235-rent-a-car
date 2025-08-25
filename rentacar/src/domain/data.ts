@@ -2,10 +2,34 @@ import type { Brand, Car, Location } from './rentals';
 import { d } from './helpers';
 
 export const locations: Location[] = [
-  { id: 'loc-bel-air', city: 'Belgrade', name: 'Airport Nikola Tesla' },
-  { id: 'loc-bel-centar', city: 'Belgrade', name: 'City Center' },
-  { id: 'loc-ns-centar', city: 'Novi Sad', name: 'City Center' },
-  { id: 'loc-nis-centar', city: 'Niš', name: 'City Center' },
+  {
+    id: 'loc-bel-air',
+    city: 'Belgrade',
+    name: 'Airport Nikola Tesla',
+    lat: 44.8184,
+    lng: 20.3091,
+  },
+  {
+    id: 'loc-bel-centar',
+    city: 'Belgrade',
+    name: 'City Center',
+    lat: 44.8125,
+    lng: 20.4612,
+  },
+  {
+    id: 'loc-ns-centar',
+    city: 'Novi Sad',
+    name: 'City Center',
+    lat: 45.2671,
+    lng: 19.8335,
+  },
+  {
+    id: 'loc-nis-centar',
+    city: 'Niš',
+    name: 'City Center',
+    lat: 43.3209,
+    lng: 21.8958,
+  },
 ];
 
 export const cars: Car[] = [

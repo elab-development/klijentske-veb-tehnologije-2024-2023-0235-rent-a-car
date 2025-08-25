@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { locations } from '../domain/data';
+import LocationsMap from '../components/contact/LocationsMap';
 
 type ContactFormData = {
   name: string;
@@ -233,6 +234,10 @@ export default function Contact() {
             </li>
           </ul>
         </aside>
+      </div>
+
+      <div className='mt-10 rounded-xl shadow-sm bg-white'>
+        <LocationsMap locations={locations} height={420} />
       </div>
     </main>
   );
