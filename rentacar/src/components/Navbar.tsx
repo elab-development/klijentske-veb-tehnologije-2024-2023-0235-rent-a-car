@@ -69,12 +69,12 @@ export default function Navbar() {
         </div>
 
         <div className='hidden md:flex'>
-          <a
-            href='/cars'
+          <Link
+            to='/cars'
             className='rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70'
           >
             Browse Cars
-          </a>
+          </Link>
         </div>
 
         <button
@@ -147,13 +147,13 @@ export default function Navbar() {
                 Popular
               </NavLink>
             </div>
-            <a
-              href='/cars'
+            <Link
+              to='/cars'
               onClick={() => setOpen(false)}
               className='mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50'
             >
               Browse Cars
-            </a>
+            </Link>
           </div>
         </div>
       )}

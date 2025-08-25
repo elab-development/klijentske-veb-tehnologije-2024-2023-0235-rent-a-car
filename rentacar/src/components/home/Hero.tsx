@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import HeroImg from '/images/hero.jpg';
 
 export default function Hero() {
@@ -19,12 +21,12 @@ export default function Hero() {
             another—no hassle.
           </p>
           <div className='mt-8 flex items-center gap-3'>
-            <a
-              href='/cars'
+            <Link
+              to='/cars'
               className='inline-flex items-center justify-center rounded-md bg-white text-black px-5 py-3 font-medium shadow hover:shadow-md transition'
             >
               Browse Cars
-            </a>
+            </Link>
             <a
               href='#brands'
               className='inline-flex items-center justify-center rounded-md border border-white/40 px-5 py-3 font-medium text-white hover:bg-white/10 transition'

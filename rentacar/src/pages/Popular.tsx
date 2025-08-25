@@ -1,162 +1,167 @@
-import { Link, NavLink } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import { Bar, Pie, Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-const baseLink =
-  'px-3 py-2 rounded-md text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70';
-const inactive = 'hover:bg-white/10';
-const active = 'bg-white/15 ring-1 ring-white/20';
+import {
+  BLUE,
+  countBookingsByMonth,
+  countBookingsPerMake,
+  countBookingsPerModel,
+  countBookingsPerTransmission,
+  INDIGO,
+  PIE_COLORS,
+  SKY,
+  topN,
+} from '../utils/stats';
+import { cars } from '../domain/data';
 
-export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [elevated, setElevated] = useState(false);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
 
-  useEffect(() => {
-    const onScroll = () => setElevated(window.scrollY > 4);
-    onScroll();
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+export default function Popular() {
+  const modelCounts = useMemo(() => countBookingsPerModel(cars), []);
+  const modelLabels = useMemo(() => Object.keys(modelCounts), [modelCounts]);
+  const modelData = useMemo(
+    () => modelLabels.map((k) => modelCounts[k]),
+    [modelLabels, modelCounts]
+  );
+
+  const makeTop5 = useMemo(() => topN(countBookingsPerMake(cars), 5), []);
+  const makeLabels = makeTop5.map(([k]) => k);
+  const makeData = makeTop5.map(([, v]) => v);
+
+  const transCounts = useMemo(() => countBookingsPerTransmission(cars), []);
+  const transLabels = Object.keys(transCounts);
+  const transData = transLabels.map((k) => transCounts[k]);
+
+  const monthCounts = useMemo(() => {
+    const m = countBookingsByMonth(cars);
+    return Object.entries(m).sort((a, b) => a[0].localeCompare(b[0]));
   }, []);
+  const monthLabels = monthCounts.map(([k]) => k);
+  const monthData = monthCounts.map(([, v]) => v);
 
   return (
-    <header
-      className={[
-        'sticky top-0 z-50 backdrop-blur',
-        'bg-gradient-to-r from-sky-600 to-blue-700 text-white',
-        elevated ? 'shadow-md shadow-black/10' : '',
-      ].join(' ')}
-    >
-      <nav className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
-        <Link to='/' className='flex items-center gap-2'>
-          <span className='inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-blue-700 font-bold shadow-sm'>
-            RC
-          </span>
-          <span className='text-lg font-semibold tracking-tight'>RentCar</span>
-        </Link>
+    <main className='mx-auto max-w-7xl px-4 py-8'>
+      <h1 className='text-2xl font-bold mb-6'>Popular Cars</h1>
 
-        <div className='hidden items-center gap-1 md:flex'>
-          <NavLink
-            to='/'
-            className={({ isActive }) =>
-              `${baseLink} ${isActive ? active : inactive}`
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to='/cars'
-            className={({ isActive }) =>
-              `${baseLink} ${isActive ? active : inactive}`
-            }
-          >
-            Cars
-          </NavLink>
-          <NavLink
-            to='/contact'
-            className={({ isActive }) =>
-              `${baseLink} ${isActive ? active : inactive}`
-            }
-          >
-            Contact
-          </NavLink>
-          <NavLink
-            to='/popular'
-            className={({ isActive }) =>
-              `${baseLink} ${isActive ? active : inactive}`
-            }
-          >
-            Popular
-          </NavLink>
+      <section className='mb-8 rounded-xl shadow-sm bg-white p-4'>
+        <h2 className='mb-3 text-lg font-semibold'>Bookings per model (all)</h2>
+        <Bar
+          data={{
+            labels: modelLabels,
+            datasets: [
+              {
+                label: 'Bookings',
+                data: modelData,
+                backgroundColor: SKY,
+                borderColor: SKY,
+                borderWidth: 1,
+              },
+            ],
+          }}
+          options={{
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+          }}
+        />
+      </section>
+
+      <section className='mb-8 rounded-xl shadow-sm bg-white p-4'>
+        <div className='mb-3 flex items-center justify-between'>
+          <h2 className='text-lg font-semibold'>Top 5 makes by bookings</h2>
         </div>
+        <Bar
+          data={{
+            labels: makeLabels,
+            datasets: [
+              {
+                label: 'Bookings',
+                data: makeData,
+                backgroundColor: BLUE,
+                borderColor: BLUE,
+                borderWidth: 1,
+              },
+            ],
+          }}
+          options={{
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+          }}
+        />
+      </section>
 
-        <div className='hidden md:flex'>
-          <a
-            href='/cars'
-            className='rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70'
-          >
-            Browse Cars
-          </a>
+      <section className='mb-8 rounded-xl shadow-sm bg-white p-4'>
+        <h2 className='mb-3 text-lg font-semibold'>Bookings by transmission</h2>
+        <div className='max-w-md'>
+          <Pie
+            data={{
+              labels: transLabels.map((t) => t[0].toUpperCase() + t.slice(1)),
+              datasets: [
+                {
+                  data: transData,
+                  backgroundColor: PIE_COLORS.slice(0, transLabels.length),
+                  borderColor: '#ffffff',
+                  borderWidth: 2,
+                },
+              ],
+            }}
+            options={{
+              plugins: { legend: { position: 'bottom' } },
+            }}
+          />
         </div>
+      </section>
 
-        <button
-          aria-label='Toggle menu'
-          onClick={() => setOpen((v) => !v)}
-          className='inline-flex items-center justify-center rounded-md p-2 hover:bg-white/10 md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70'
-        >
-          <svg
-            className='h-6 w-6'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            fill='none'
-            strokeWidth='1.8'
-          >
-            {open ? (
-              <path d='M6 18L18 6M6 6l12 12' strokeLinecap='round' />
-            ) : (
-              <path d='M4 6h16M4 12h16M4 18h16' strokeLinecap='round' />
-            )}
-          </svg>
-        </button>
-      </nav>
-
-      {open && (
-        <div className='border-t border-white/15 md:hidden'>
-          <div className='mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8'>
-            <div className='flex flex-col gap-1'>
-              <NavLink
-                to='/'
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `${baseLink} ${
-                    isActive ? 'bg-white/15' : 'hover:bg-white/10'
-                  }`
-                }
-              >
-                Home
-              </NavLink>
-              <NavLink
-                to='/cars'
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `${baseLink} ${
-                    isActive ? 'bg-white/15' : 'hover:bg-white/10'
-                  }`
-                }
-              >
-                Cars
-              </NavLink>
-              <NavLink
-                to='/contact'
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `${baseLink} ${
-                    isActive ? 'bg-white/15' : 'hover:bg-white/10'
-                  }`
-                }
-              >
-                Contact
-              </NavLink>
-              <NavLink
-                to='/popular'
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `${baseLink} ${
-                    isActive ? 'bg-white/15' : 'hover:bg-white/10'
-                  }`
-                }
-              >
-                Popular
-              </NavLink>
-            </div>
-            <a
-              href='/cars'
-              onClick={() => setOpen(false)}
-              className='mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50'
-            >
-              Browse Cars
-            </a>
-          </div>
-        </div>
-      )}
-    </header>
+      {/* Monthly trend */}
+      <section className='mb-8 rounded-xl shadow-sm bg-white p-4'>
+        <h2 className='mb-3 text-lg font-semibold'>
+          Bookings by month (timeline)
+        </h2>
+        <Line
+          data={{
+            labels: monthLabels,
+            datasets: [
+              {
+                label: 'Bookings',
+                data: monthData,
+                borderColor: INDIGO,
+                backgroundColor: 'rgba(99,102,241,0.15)',
+                fill: true,
+                tension: 0.25,
+                pointRadius: 3,
+                pointBackgroundColor: INDIGO,
+              },
+            ],
+          }}
+          options={{
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+          }}
+        />
+      </section>
+    </main>
   );
 }

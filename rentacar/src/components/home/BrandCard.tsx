@@ -7,8 +7,6 @@ type BrandCardProps = {
 };
 
 export default function BrandCard({ brand }: BrandCardProps) {
-  const src = brand.logoUrl;
-
   return (
     <Link
       to={`/cars?make=${encodeURIComponent(brand.name)}`}
@@ -16,7 +14,7 @@ export default function BrandCard({ brand }: BrandCardProps) {
       title={`Show ${brand.name} cars`}
       aria-label={`Show ${brand.name} cars`}
     >
-      <img src={src} alt={`${brand.name} logo`} loading='lazy' />
+      <img src={brand.logoUrl} alt={`${brand.name} logo`} loading='lazy' />
       <span className='sr-only'>{brand.name}</span>
     </Link>
   );

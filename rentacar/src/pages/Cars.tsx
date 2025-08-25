@@ -75,7 +75,7 @@ const Cars = () => {
       <CarsFilters />
 
       {filtered.length === 0 ? (
-        <div className='rounded-xl border bg-white p-8 text-center text-gray-600'>
+        <div className='rounded-xl shadow-md bg-white p-8 text-center text-gray-600'>
           No cars match your filters.
         </div>
       ) : (

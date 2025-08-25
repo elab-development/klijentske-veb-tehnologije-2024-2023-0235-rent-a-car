@@ -22,17 +22,17 @@ export default function Footer() {
             <h4 className='text-sm font-semibold'>Company</h4>
             <ul className='mt-3 space-y-2 text-sm text-blue-100/90'>
               <li>
-                <a href='/about' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   About
                 </a>
               </li>
               <li>
-                <a href='/careers' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Careers
                 </a>
               </li>
               <li>
-                <a href='/press' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Press
                 </a>
               </li>
@@ -43,17 +43,17 @@ export default function Footer() {
             <h4 className='text-sm font-semibold'>Support</h4>
             <ul className='mt-3 space-y-2 text-sm text-blue-100/90'>
               <li>
-                <a href='/contact' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Contact
                 </a>
               </li>
               <li>
-                <a href='/help' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Help Center
                 </a>
               </li>
               <li>
-                <a href='/insurance' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Insurance
                 </a>
               </li>
@@ -64,17 +64,17 @@ export default function Footer() {
             <h4 className='text-sm font-semibold'>Legal</h4>
             <ul className='mt-3 space-y-2 text-sm text-blue-100/90'>
               <li>
-                <a href='/terms' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Terms
                 </a>
               </li>
               <li>
-                <a href='/privacy' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Privacy
                 </a>
               </li>
               <li>
-                <a href='/cookies' className='hover:text-white'>
+                <a href='#' className='hover:text-white'>
                   Cookies
                 </a>
               </li>
